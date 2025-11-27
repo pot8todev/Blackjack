@@ -3,6 +3,13 @@ local RED = "\27[1;31m"
 local RESET = "\27[0m"
 
 local playingCards = {}
+local nipeAliases = {
+	espadas = "♠",
+	copas = "♥",
+	ouros = "♦",
+	paus = "♣",
+	coringa = "jkr",
+}
 
 function playingCards.newCard(nome, nipe)
 	local isJoker = (nome == "jkr")
@@ -26,7 +33,11 @@ function playingCards.newCard(nome, nipe)
 		nome = nome or "",
 		nipe = (not isJoker and nipe) or "", --if not joker or not have nipe ->default
 		pontuacao = pontuacaoCarta() or 0,
+		isFlipped = false,
 	}
+	function card:flip()
+		self.isFlipped = not self.isFlipped
+	end
 	function card:show(backwards)
 		local COLOR = RESET
 
@@ -46,10 +57,14 @@ function playingCards.newCard(nome, nipe)
 				io.write(COLOR .. string.format("|%s  %s |", parm1, parm2) .. RESET)
 			end
 		end
-		if backwards == true then
-			format(nipe, nome)
+		if not self.isFlipped then
+			if backwards == true then
+				format(nipe, nome)
+			else
+				format(nome, nipe)
+			end
 		else
-			format(nome, nipe)
+			io.write("|=====|")
 		end
 	end
 
@@ -61,26 +76,42 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 	local deck = { cartas = {}, quantidadeDe = {}, total = 0 }
 	local vetor_nomes = { "A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2", "jkr" }
 	local vetor_nipes = { "♠", "♥", "♦", "♣" }
-	local nipeAliases = {
-		espadas = "♠",
-		copas = "♥",
-		ouros = "♦",
-		paus = "♣",
-		coringa = "jkr",
-	}
 	local isRoyalty = { K = true, Q = true, J = true } --chave: valor
-	local function findCardIndex(deck, nome, nipe)
-		for i, card in ipairs(deck.cartas) do
-			if card and card.nome == nome and card.nipe == nipe then
-				return i
+	function deck:findCardIndex(nome, nipe, pontos) --find the index of the first match
+		for i, card in ipairs(self.cartas) do
+			if card then
+				local match = true
+
+				if nome and card.nome ~= nome then
+					match = false
+				end
+				if nipe and not (card.nipe == nipeAliases[nipe] or card.nipe == nipe) then
+					match = false
+				end
+				if pontos and card.pontuacao ~= pontos then
+					match = false
+				end
+
+				if match then
+					return i
+				end
 			end
 		end
 		return nil
 	end
+	-- function deck:find(nome, nipe)
+	-- 	local i = self:findCardIndex(nome, nipe)
+	-- 	local carta = deck.cartas[i]
+	--
+	-- 	if carta then
+	-- 		return carta
+	-- 	end
+	-- 	print("card Not found")
+	-- 	return nil
+	-- end
 	function deck:addCard(card)
 		table.insert(self.cartas, card)
 		self.total = self.total + 1
-		self.quantidadeDe[card.nome] = (self.quantidadeDe[card.nome] or 0) + 1
 	end
 
 	function deck:showAmount() -- randomseed needed in main
@@ -105,36 +136,38 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 			end
 			io.write("\n")
 		end
-		local function prettyCardList(amount) -- horizontaly print the cards
+		local function horizontalCardList(amount, index) -- horizontaly print the cards
 			if amount <= 0 then --recursive call
 				return
 			end
-
+			local maxCardsRow = 5
 			local usedAmount = amount or 1
-			if amount > 7 then --if >then 7 cards, complete in next line
-				usedAmount = 7
+			if amount > maxCardsRow then --if >then 7 cards, complete in next line
+				usedAmount = maxCardsRow
+				-- índice final correto
 			end
+			local endIndex = index + usedAmount - 1
 			io.write("\n")
 			printHorizontally(usedAmount, " _____ ")
 			printHorizontally(usedAmount, "|     |")
-			for i = 1, usedAmount do -- print the nipe of the card
+			for i = index, endIndex do -- print the nipe of the card
 				self.cartas[i]:show()
 			end
 			io.write("\n")
 			printHorizontally(usedAmount, "|     |")
 			printHorizontally(usedAmount, "|     |")
-			for i = 1, usedAmount do
+			for i = index, endIndex do
 				self.cartas[i]:show(true) -- print backwards
 			end
 			io.write("\n")
 			printHorizontally(usedAmount, "|_____|")
-			prettyCardList(amount - 7)
+			horizontalCardList(amount - maxCardsRow, index + maxCardsRow)
 		end
-		prettyCardList(self.total)
+		horizontalCardList(self.total, 1)
 	end
 	function deck:removeCard(nome, nipe)
 		local function rmv(cardName, cardSuit)
-			local index = findCardIndex(self, cardName, cardSuit)
+			local index = self:findCardIndex(cardName, cardSuit)
 			if index then
 				return table.remove(self.cartas, index), cardName
 			else
@@ -205,4 +238,7 @@ end
 -- local deck = playingCards.newDeck(true)
 -- deck:showPretty()
 -- deck:showAmount()
-return playingCards
+return {
+	baralho = playingCards,
+	nipes = nipeAliases,
+}
