@@ -99,16 +99,6 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 		end
 		return nil
 	end
-	-- function deck:find(nome, nipe)
-	-- 	local i = self:findCardIndex(nome, nipe)
-	-- 	local carta = deck.cartas[i]
-	--
-	-- 	if carta then
-	-- 		return carta
-	-- 	end
-	-- 	print("card Not found")
-	-- 	return nil
-	-- end
 	function deck:addCard(card)
 		table.insert(self.cartas, card)
 	end
@@ -192,7 +182,7 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 
 			if removedCard then
 				io.write("the card")
-				removedCard:show()
+				-- removedCard:show() para testes
 				io.write("was romoved\n")
 				-- found = true
 				return removedCard
