@@ -1,6 +1,7 @@
-
-
 # Objetivo do codigo
+implementar jogos de carta usando princípios de orientação a objeto
+![planejamento das classes do jogo](classes/assets/blackJack.png)
+
 ![Sobre o funcionamento de jogo](classes/assets/gameplay.png)
 ##### setup
 - Primeiro pedimos o nome do jogador e quanto ele deseja apostar.
