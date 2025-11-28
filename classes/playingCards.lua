@@ -73,7 +73,7 @@ function playingCards.newCard(nome, nipe)
 end
 
 function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
-	local deck = { cartas = {}, quantidadeDe = {}, total = 0 }
+	local deck = { cartas = {} }
 	local vetor_nomes = { "A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2", "jkr" }
 	local vetor_nipes = { "♠", "♥", "♦", "♣" }
 	local isRoyalty = { K = true, Q = true, J = true } --chave: valor
@@ -111,7 +111,6 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 	-- end
 	function deck:addCard(card)
 		table.insert(self.cartas, card)
-		self.total = self.total + 1
 	end
 
 	function deck:showAmount() -- randomseed needed in main
@@ -122,11 +121,9 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 			currentName = card.nome
 			if oldName ~= currentName then
 				card:show()
-				io.write("qnt: " .. self.quantidadeDe[currentName] .. "\n")
 				oldName = currentName
 			end
 		end
-		print("\ntotal: " .. self.total)
 	end
 	function deck:showPretty()
 		local COLOR = RESET
@@ -163,7 +160,7 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 			printHorizontally(usedAmount, "|_____|")
 			horizontalCardList(amount - maxCardsRow, index + maxCardsRow)
 		end
-		horizontalCardList(self.total, 1)
+		horizontalCardList(#self.cartas, 1)
 	end
 	function deck:removeCard(nome, nipe)
 		local function rmv(cardName, cardSuit)
@@ -194,8 +191,6 @@ function playingCards.newDeck(ActualDeck, rmvJoker, rmvRoyalty)
 			local removedCard, removedName = rmv(cardName, cardSuit)
 
 			if removedCard then
-				self.quantidadeDe[removedName] = (self.quantidadeDe[removedName] or 1) - 1
-				self.total = self.total - 1
 				io.write("the card")
 				removedCard:show()
 				io.write("was romoved\n")
