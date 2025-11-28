@@ -41,6 +41,7 @@ while loop do
 	local botWin = false
 	local playerWin = false
 
+	----------// turno do jogador //--------------
 	while compra == true do
 		os.execute("clear")
 		io.write(string.format("\nvoce possui "))
@@ -72,7 +73,8 @@ while loop do
 	end
 
 	compra = true
-	bot.mao.cartas[2]:flip(2)
+	bot.mao.cartas[2]:flip()
+	----------// turno do bot //--------------
 	while compra == true and not botWin do
 		os.execute("clear")
 		if bot.pontos_mao > 21 then --
@@ -104,13 +106,15 @@ while loop do
 			bot:draw()
 		end
 	end
-	if botWin then
+	----------// decidido o ganhador //--------------
+
+	if botWin then -- ou o jagador estourou
 		os.execute("clear")
 		print("\nplayer has, " .. RED .. eu.pontos_mao .. RESET .. " pontos")
 		print("bot has " .. RED .. bot.pontos_mao .. RESET .. " pontos")
 		print("house allways wins")
 		loop = eu:decisao()
-	elseif playerWin then
+	elseif playerWin then -- ou o bot estourou tentando ganhar
 		io.write(
 			GREEN
 				.. string.format("\ninvestiu %.2f voce ganhow %.2f dinheiro", investimento, investimento * payback)
@@ -123,7 +127,7 @@ while loop do
 		eu.dinheiro = eu.dinheiro + investimento
 		loop = eu:decisao()
 	end
-	if eu.dinheiro <= 0 then
+	if eu.dinheiro <= 0 then -- acabou o dinheiro
 		print(RED .. "voce tem problemas." .. RESET)
 		loop = false
 	end
