@@ -6,6 +6,14 @@ local jogadores = {}
 local function newPlayer(nickname, decisao) --classe abstrata decisao de quando comprar carta
 	local player = { nickname = nickname, mao = playingCards.newDeck(), pontos_mao = 0, decisao = decisao }
 
+	function player:discardHand()
+		while #self.mao.cartas > 0 do
+			local pulledCard = self.mao:removeCard()
+			if pulledCard then
+				self.pontos_mao = self.pontos_mao - pulledCard.pontuacao
+			end
+		end
+	end
 	function player:draw(numCards)
 		numCards = numCards or 1
 		for _ = 1, numCards do
@@ -58,8 +66,8 @@ function jogadores.newPcharacter()
 	local function decisao()
 		local escolha
 		while true do --player escolhe
-			io.write(string.format("voce deseja comprar outra carta?"))
 			escolha = io.read()
+			io.write(string.format("deseja dar mais um hit?"))
 			if escolha == "y" then
 				return true
 			elseif escolha == "n" then
